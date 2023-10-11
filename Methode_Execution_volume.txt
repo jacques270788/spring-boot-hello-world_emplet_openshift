@@ -1,0 +1,56 @@
+1- verifier le fichier templet de configuration de la creation du volume 
+oc get project
+oc get pvc
+oc create -f ./pcv-template.yaml
+oc delete --all all                     pour suprimer tout ce qui a ete creer 
+
+Objectif etant d'ajouter la creation de volume dans le template
+DeploaymentConfig --->spec
+il faut mettre: 
+------------------------------------------------------------------------------------------------------------
+pour la creation du vomume 
+----------
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: pvc-template
+objects:
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: claim1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: gp2
+  volumeMode: Filesystem
+---------------------------------------------------------------------------------------------------
+ce qu'il faut mettre dans le fichier templet de configuration de l'aplication 
+
+DeploymentConfig - spec - template - spec
+        volumes:
+          - name: claim1
+            persistentVolumeClaim:
+              claimName: claim1
+     
+DeploymentConfig - spec - template - spec - containers -
+            volumeMounts:
+              - name: claim1
+                mountPath: /var/local/SP
+--------------------------------------------------------------------------------------------------------
+oc delete template <<Nom_du_Templete>>
+oc create -f <<chemain vers le fichier>>
+
+pour la creation d'une autre application 
+
+oc new-app --template docker_template -p Brache <branche name > -p app_Git-Url <chemain vers le dossier git> -p nom du projet=nom du projet -p AppName= nom de plaplicationn
+
+
+
+
+
+
+
